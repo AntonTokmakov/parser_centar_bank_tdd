@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,13 @@ public class CurrencyRateXmlService implements CurrencyRateService {
     @Override
     public CurrencyRate getCurrencyRate(String url, String charCode) {
 
-        List<CurrencyRate> currencyRateList = parser.parser(getRatesAsXml(url));
+        List<CurrencyRate> currencyRateList = Optional.of(parser.parser(getRatesAsXml(url)))
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Возможно ошибка в дате. Исправте и попробуйте еще раз."));
         return currencyRateList.stream()
                 .filter(s -> s.getCharCode().equals(charCode))
-                .findFirst().orElseThrow(() -> new IllegalArgumentException("Абревиатуры " + charCode + " не существует. Введите другую."));
+                .findFirst().orElseThrow(() ->
+                        new IllegalArgumentException("Абревиатуры " + charCode + " не существует. Введите другую."));
 
     }
 
